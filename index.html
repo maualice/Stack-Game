@@ -168,6 +168,17 @@
             }
         }
 
+        function gameOver(){
+            mode=MODES.GAMEOVER
+
+            context.fillStyle='rgba(255,0,0,0.5)'
+            context.fillRect(0,0,canvas.width,canvas.height)
+
+            context.font='bold 20px Arial'
+            context.fillStyle='white'
+            context.textAlign='center'
+            context.fillText('Game Over',canvas.width/2,canvas.height/2)
+        }
 
         function handleBoxLanding(){
             const currentBox=boxes[current]
@@ -176,7 +187,7 @@
             const difference=currentBox.x-previousBox.x
 
             if(Math.abs(difference) >= currentBox.width){
-                mode=MODES.GAMEOVER
+                gameOver()
                 return
             }
 
@@ -212,6 +223,14 @@
                 mode=MODES.FALL
             }
         })
+
+        canvas.onpointerdown=()=>{
+            if(mode === MODES.GAMEOVER){
+                restart()                
+            }else if (mode === MODES.BOUNCE){
+                mode = MODES.FALL 
+            }
+        }
 
         restart()
     </script>
