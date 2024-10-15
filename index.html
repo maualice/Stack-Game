@@ -35,6 +35,7 @@
 
         //STATE
         let boxes=[]
+        let debris={ x: 0, y: 0, width: 0}
         let scrollCounter,cameraY,current,mode,xSpeed,ySpeed /*scrollcounter porque va a ir subiendo el scroll a medidad que se va jugando,current seria la caja con la que se esta jugando,seria como la puntuacion*/
 
         function createStepColor(step){
@@ -62,6 +63,7 @@
                 color:'white'
             }]
 
+            debris={ x:0, y:0, width:0}//para que al inicializar esten los escombros
             current = 1
             mode=MODES.BOUNCE
             xSpeed=INITIAL_X_SPEED
@@ -82,6 +84,7 @@
 
             drawBackground()
             drawBoxes()
+            drawDebris()
 
             if(mode === MODES.BOUNCE) {
                 moveAndDetectCollision()
@@ -89,6 +92,7 @@
                 updateFallMode()
             }
 
+            debris.y -= ySpeed
             updateCamera()
 
             window.requestAnimationFrame(draw)/*le pasas una función que quieres ejecutar antes del siguiente repintado*/
@@ -97,6 +101,14 @@
         function drawBackground(){
             context.fillStyle='rgba(0, 0, 0, 0.5)'
             context.fillRect(0,0,canvas.width,canvas.height)
+        }
+
+        function drawDebris(){
+            const {x,y,width} = debris
+            const newY = INITIAL_BOX_Y - y + cameraY
+
+            context.fillStyle='red'
+            context.fillRect(x,newY,width,BOX_HEIGHT)
         }
 
         function drawBoxes(){
@@ -118,6 +130,19 @@
             }
         }
 
+        function createNewDebris(difference){
+            const currentBox=boxes[current]
+            const previousBox=boxes[current - 1]
+
+            const debrisX = currentBox.x > previousBox.x ? currentBox.x + currentBox.width : currentBox.x
+
+            debris={
+                x:debrisX,
+                y:currentBox.y,
+                width:difference
+            }
+        }
+
         function updateFallMode(){
             const currentBox = boxes[current]
             currentBox.y -= ySpeed
@@ -129,7 +154,7 @@
             }
         }
         
-        function adjustCurrentBox(){
+        function adjustCurrentBox(difference){
             const currentBox=boxes[current]
             const previousBox=boxes[current- 1]
 
@@ -156,6 +181,7 @@
             }
 
             adjustCurrentBox(difference)
+            createNewDebris(difference)
 
             xSpeed += xSpeed > 0 ? 1 : -1 /*le aumenta la velocidad cada vez que baje una caja, positivo para la derecha o negativo si va a la izq*/
             current++ /*numero de caja,que coincide con la puntuacion*/
